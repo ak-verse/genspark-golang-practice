@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sync"
+//	"time"
 )
 
 func main() {
@@ -17,7 +18,10 @@ func main() {
 			// fan out pattern, spinning up n number of goroutines, for n number of task
 			go func() {
 				defer wgWorker.Done()
+//				fmt.Println("sendin to channel",i)
 				ch <- i
+//				fmt.Println("sendin to channel",i)
+
 			}()
 
 		}
@@ -31,14 +35,17 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+//		time.Sleep(1 * time.Second)                                                          //AK : stops deadlock
 		wgWorker.Wait() // until workers are not finished, we would wait
 		// close the channel if workers are done sending
+//		fmt.Println("closing channel")
 		close(ch)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		fmt.Println("inside receiver")                                                       //AK: stops deadlock
 		// range gives a guarantee everything would be received
 		for v := range ch {
 			fmt.Println(v)
